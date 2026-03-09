@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Ultimate Crypto Salt Meter</title>
+  <style>
+    :root { --bg: #0a0e17; --card: #111a28; --accent: #00ff88; --text: #e2e8f0; --dim: #94a3b8; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text); font-family: 'Courier New', monospace;
+      display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow-x: hidden;
+    }
+    .grid-overlay {
+      position: fixed; inset: 0; pointer-events: none;
+      background: linear-gradient(90deg, rgba(30,58,47,0.1) 1px, transparent 1px),
+                    linear-gradient(rgba(30,58,47,0.1) 1px, transparent 1px);
+      background-size: 40px 40px; z-index: -1;
+    }
+    .container { width: 100%; max-width: 480px; padding: 20px; z-index: 10; }
+    .header { text-align: center; margin-bottom: 30px; }
+    .badge {
+      display: inline-block; padding: 4px 12px; border-radius: 4px;
+      background: rgba(0,255,136,0.1); color: #00ff88; font-size: 10px;
+      font-weight: 800; letter-spacing: 2px; margin-bottom: 12px;
+      border: 1px solid rgba(0,255,136,0.3);
+    }
+    .title1 { font-size: 16px; letter-spacing: 3px; color: #00ff88; font-weight: 900; }
+    .title2 { font-size: 32px; font-weight: 900; margin: 5px 0 10px; filter: drop-shadow(0 0 8px rgba(0,255,136,0.5)); }
+    .subtitle { color: #64748b; font-size: 12px; letter-spacing: 1px; }
+    .card {
+      background: var(--card); border: 1px solid #1e3a2f; border-radius: 16px;
+      padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      position: relative; overflow: hidden;
+    }
+    .gauge-wrap { position: relative; margin-bottom: 24px; text-align: center; }
+    .gauge-svg-wrap { width: 200px; margin: 0 auto; position: relative; }
+    .score-overlay {
+      position: absolute; bottom: 15px; left: 0; right: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    }
+    #scoreNum { font-size: 44px; font-weight: 900; line-height: 1; transition: color 0.3s; }
+    #scoreLabel { font-size: 11px; opacity: 0.8; margin-top: 2px; }
+    .bars { display: flex; gap: 3px; align-items: flex-end; height: 28px; margin-top: 8px; }
+    .bar { width: 5px; border-radius: 2px; background: #1e3a2f; transition: all 0.5s; }
+    .input-label { font-size: 12px; color: #00ff88; letter-spacing: 2px; margin-bottom: 8px; }
+    textarea {
+      width: 100%; background: #070d14; border: 1px solid #1e3a2f;
+      border-radius: 8px; padding: 12px 14px; color: #e2e8f0;
+      font-size: 13px; resize: none; outline: none;
+      font-family: 'Courier New', monospace; transition: border-color 0.2s;
+    }
+    textarea:focus { border-color: #00ff88; }
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 16px; }
+    .tag {
+      background: transparent; border: 1px solid #1e3a2f; border-radius: 20px;
+      padding: 6px 14px; color: #94a3b8; font-size: 12px; cursor: pointer;
+      font-family: 'Courier New', monospace; transition: all 0.2s;
+    }
+    .tag:hover { border-color: #00ff88; color: #00ff88; background: rgba(0,255,136,0.05); }
+    .error { color: #ff2244; font-size: 12px; margin-bottom: 12px; }
+    .btn-analyze {
+      width: 100%; padding: 14px; border-radius: 8px; border: none;
+      background: linear-gradient(90deg, #00ff88, #00ccaa);
+      color: #0a0e17; font-weight: 900; font-size: 15px; cursor: pointer;
+      letter-spacing: 2px; font-family: 'Courier New', monospace;
+      box-shadow: 0 0 20px rgba(0,255,136,0.3); transition: opacity 0.2s;
+    }
+    .btn-analyze:hover { opacity: 0.85; }
+    .result-quote {
+      background: #070d14; border: 1px solid #1e3a2f; border-radius: 8px;
+      padding: 10px 14px; margin-bottom: 16px; color: #64748b; font-size: 13px; font-style: italic;
+    }
+    .verdict-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .verdict-box { background: #070d14; border: 1px solid #1e3a2f; border-radius: 10px; padding: 14px; }
+    .verdict-lang { font-size: 10px; letter-spacing: 2px; margin-bottom: 8px; }
+    .verdict-text { color: #cbd5e1; font-size: 12px; margin-bottom: 10px; line-height: 1.6; }
+    .advice-divider { border-top: 1px solid #1e3a2f; padding-top: 10px; }
+    .advice-label { font-size: 10px; color: #ff6600; margin-bottom: 4px; }
+    .advice-text { color: #94a3b8; font-size: 11px; line-height: 1.5; }
+    .btn-share {
+      width: 100%; padding: 13px; border-radius: 8px; border: none;
+      background: linear-gradient(90deg, #1a1a2e, #16213e);
+      outline: 1.5px solid #1d9bf0; color: #1d9bf0;
+      font-weight: 800; font-size: 13px; cursor: pointer;
+      letter-spacing: 1.5px; font-family: 'Courier New', monospace;
+      margin-bottom: 10px; box-shadow: 0 0 12px rgba(29,155,240,0.2); transition: all 0.2s;
+    }
+    .btn-share:hover { background: rgba(29,155,240,0.12); box-shadow: 0 0 22px rgba(29,155,240,0.35); }
+    .btn-reset {
+      width: 100%; padding: 12px; border-radius: 8px;
+      background: transparent; border: 1px solid #1e3a2f;
+      color: #00ff88; font-weight: 700; font-size: 13px; cursor: pointer;
+      letter-spacing: 2px; font-family: 'Courier New', monospace; transition: all 0.2s;
+    }
+    .btn-reset:hover { background: rgba(0,255,136,0.05); border-color: #00ff88; }
+    .ticker { margin-top: 16px; display: flex; gap: 20px; justify-content: center; font-size: 11px; letter-spacing: 1px; }
+    .hidden { display: none; }
+    </style>
+  </head>
+  <body>
+    <div class="grid-overlay"></div>div>
+    <div class="container">
+      <div class="header">
+        <div class="badge">BLOCKCHAIN SENTIMENT ANALYSIS v2.0</div>div>
+        <div class="title1">How Salty Are You Today,</div>div>
+        <div class="title2">DEGEN?</div>div>
+        <div class="subtitle">How salty are you today? Tell the Whale.</div>div>
+      </div>div>
+      <div class="card">
+        <div class="gauge-wrap">
+          <div class="gauge-svg-wrap">
+            <svg viewBox="0 0 200 120">
+              <defs>
+                <linearGradient id="saltGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#00ff88"/>
+                  <stop offset="40%" stop-color="#ffcc00"/>
+                  <stop offset="70%" stop-color="#ff6600"/>
+                  <stop offset="100%" stop-color="#ff2244"/>
+                </linearGradient>linearGradient>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="2" result="blur"/>
+                  <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>filter>
+              </defs>
+            <path d="M 25 95 A 70 70 0 0 1 175 95" fill="none" stroke="#1a2a20" stroke-width="14" stroke-linecap="round"/>
+            <path id="gaugeFill" d="M 25 95 A 70 70 0 0 1 175 95" fill="none" stroke="url(#saltGrad)" stroke-width="14" stroke-linecap="round" stroke-dasharray="0 220" filter="url(#glow)"/>
+            </svg>svg>
+          <div class="score-overlay">
+          <div id="scoreNum" style="color:#1e3a2f; visibility:hidden;">0%</div>div>
+          <div id="scoreLabel" style="color:#1e3a2f;"></div>div>
+          </div>div>
+          </div>div>
+        <div class="bars" id="bars"></div>div>
+        </div>div>
+      <div id="inputSection">
+      <div class="input-label">> ENTER YOUR RANT</div>div>
+      <textarea id="grievance" rows="3" placeholder="I bought the top..."></textarea>
+      <div class="tags">
+      <button class="tag" onclick="setTag('Bought the Top')">[Top] Bought the Top</button>button>
+      <button class="tag" onclick="setTag('Sold the Bottom')">[Bottom] Sold the Bottom</button>button>
+      <button class="tag" onclick="setTag('Rugged')">[Rug] Rugged</button>button>
+      <button class="tag" onclick="setTag('Missed Airdrop')">[Airdrop] Missed Airdrop</button>button>
+      </div>div>
+      <div class="error hidden" id="errorMsg"></div>div>
+      <button class="btn-analyze" onclick="analyze()">(Salt) MEASURE MY SALT</button>button>
+      </div>div>
+      <div id="resultSection" class="hidden">
+      <div class="result-quote" id="resultQuote"></div>div>
+      <div class="verdict-grid">
+      <div class="verdict-box">
+      <div class="verdict-lang" style="color:#00ff88">EN WHALE SAYS</div>div>
+      <div class="verdict-text" id="judgeEN"></div>div>
+      <div class="advice-divider">
+      <div class="advice-label">ADVICE</div>div>
+      <div class="advice-text" id="adviceEN"></div>div>
+      </div>div>
+      </div>div>
+      <div class="verdict-box">
+      <div class="verdict-lang" style="color:#00ccff">TH WHALE SAYS</div>div>
+      <div class="verdict-text" id="judgeTH"></div>div>
+      <div class="advice-divider">
+      <div class="advice-label">ADVICE</div>div>
+      <div class="advice-text" id="adviceTH"></div>div>
+      </div>div>
+      </div>div>
+      </div>div>
+      <button class="btn-share" onclick="shareX()">SHARE MY SALT TO X</button>button>
+      <button class="btn-reset" onclick="reset()">[Reset] NEW RANT</button>button>
+      </div>div>
+      </div>div>
+    <div class="ticker">
+    <span style="color:#00ff88">BTC ^</span>span>
+    <span style="color:#ff2244">YOUR PORTFOLIO v</span>span>
+    <span style="color:#ffcc00">SALT LEVEL ^^^</span>span>
+    </div>div>
+    </div>div>
+  <script>
+    (function() {
+      const barsEl = document.getElementById('bars');
+      for (let i = 0; i < 24; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.id = 'bar' + i;
+        bar.style.height = (4 + (i % 5) * 2) + 'px';
+        barsEl.appendChild(bar);
+      }
+    })();
+    const VERDICTS = [
+      {
+        score: [0, 20],
+        en: "Honestly? Your grievance is pretty mild. Even I've seen worse. Maybe crypto just isn't your calling 
+  </script></feMerge>
+              </defs>
+  </body>
+  </style></title>
+  </head> - and that's okay.",
+  th: "Honestly? Your grievance is pretty mild. Even I've seen worse. Maybe crypto just isn't your calling - and that's okay.",
+  advEN: "Take profits next time. Revolutionary concept, I know.",
+  advTH: "Take profits next time. Revolutionary concept, I know."
+  },
+  {
+  score: [21, 40],
+  en: "I've done the math. If you'd spent your investment on vintage tees and resold them, you'd be up 40% right now. Just saying.",
+  th: "I've done the math. If you'd spent your investment on vintage tees and resold them, you'd be up 40% right now. Just saying.",
+  advEN: "There is no shame in selling second-hand clothes. There is shame in holding a dead coin.",
+  advTH: "There is no shame in selling second-hand clothes. There is shame in holding a dead coin."
+  },
+  {
+  score: [21, 40],
+  en: "You didn't miss the airdrop. The airdrop missed someone who would've sold immediately for 2% profit anyway.",
+  th: "You didn't miss the airdrop. The airdrop missed someone who would've sold immediately for 2% profit anyway.",
+  advEN: "Set reminders for snapshot dates. It's not that hard.",
+  advTH: "Set reminders for snapshot dates. It's not that hard."
+  },
+  {
+  score: [41, 60],
+  en: "The market didn't dump on you. The market used you. There's a difference, and you're too salty to see it.",
+  th: "The market didn't dump on you. The market used you. There's a difference, and you're too salty to see it.",
+  advEN: "Study the chart before you ape in next time.",
+  advTH: "Study the chart before you ape in next time."
+  },
+  {
+  score: [41, 60],
+  en: "Bro, you sold the bottom with surgical precision. You have a rare gift - the gift of being wrong at exactly the right time for everyone else.",
+  th: "Bro, you sold the bottom with surgical precision. You have a rare gift - the gift of being wrong at exactly the right time for everyone else.",
+  advEN: "When you feel the urge to sell everything, that's the signal to hold.",
+  advTH: "When you feel the urge to sell everything, that's the signal to hold."
+  },
+  {
+  score: [41, 60],
+  en: "Every great entrepreneur pivots. Crypto clearly isn't your lane. Have you considered the used clothing business? Lower volatility, better margins for you specifically.",
+  th: "Every great entrepreneur pivots. Crypto clearly isn't your lane. Have you considered the used clothing business? Lower volatility, better margins for you specifically.",
+  advEN: "Vintage tees don't rug pull. Just saying.",
+  advTH: "Vintage tees don't rug pull. Just saying."
+  },
+  {
+  score: [61, 80],
+  en: "You bought the top so perfectly it should be in a textbook. Chart analysts study bagholders like you to find resistance levels.",
+  th: "You bought the top so perfectly it should be in a textbook. Chart analysts study bagholders like you to find resistance levels.",
+  advEN: "'Buy high sell low' is a strategy, just not a good one.",
+  advTH: "'Buy high sell low' is a strategy, just not a good one."
+  },
+  {
+  score: [61, 80],
+  en: "I've seen stronger hands on a wet noodle. Your paper hands are literally funding my next holiday in Mykonos.",
+  th: "I've seen stronger hands on a wet noodle. Your paper hands are literally funding my next holiday in Mykonos.",
+  advEN: "Diamond hands aren't born, they're forged. Start practicing.",
+  advTH: "Diamond hands aren't born, they're forged. Start practicing."
+  },
+  {
+  score: [61, 80],
+  en: "The chart pattern you created by panic selling is called a Degen's Gift. We frame those. It's hanging in my yacht's bathroom.",
+  th: "The chart pattern you created by panic selling is called a Degen's Gift. We frame those. It's hanging in my yacht's bathroom.",
+  advEN: "Panic selling is never the answer. Take a walk instead.",
+  advTH: "Panic selling is never the answer. Take a walk instead."
+  },
+  {
+  score: [81, 100],
+  en: "Congratulations - you were the exit liquidity that kept this ecosystem running. You didn't lose money, you donated it to smarter people.",
+  th: "Congratulations - you were the exit liquidity that kept this ecosystem running. You didn't lose money, you donated it to smarter people.",
+  advEN: "Next time, try being the one who exits first instead of providing the exit.",
+  advTH: "Next time, try being the one who exits first instead of providing the exit."
+  },
+  {
+  score: [81, 100],
+  en: "Every whale needs exit liquidity. Thanks for your service, soldier. Your bags are someone's life-changing gains right now.",
+  th: "Every whale needs exit liquidity. Thanks for your service, soldier. Your bags are someone's life-changing gains right now.",
+  advEN: "Consider index funds. Boring but effective.",
+  advTH: "Consider index funds. Boring but effective."
+  },
+  {
+  score: [81, 100],
+  en: "Getting rugged builds character. Losing everything twice builds more character. You must be the most interesting person at dinner.",
+  th: "Getting rugged builds character. Losing everything twice builds more character. You must be the most interesting person at dinner.",
+  advEN: "Audit the contract next time. Or at least Google the team.",
+  advTH: "Audit the contract next time. Or at least Google the team."
+  },
+  {
+  score: [81, 100],
+  en: "My Lambo's monthly parking fee is more than what you invested. I'm not laughing - okay I am, but respectfully.",
+  th: "My Lambo's monthly parking fee is more than what you invested. I'm not laughing - okay I am, but respectfully.",
+  advEN: "Start smaller. Much, much smaller.",
+  advTH: "Start smaller. Much, much smaller."
+  },
+  {
+  score: [81, 100],
+  en: "Your exit liquidity funded three whales' Bali trips. In return, the market is generously offering you a new career: pre-loved fashion entrepreneur.",
+  th: "Your exit liquidity funded three whales' Bali trips. In return, the market is generously offering you a new career: pre-loved fashion entrepreneur.",
+  advEN: "The secondhand market is booming. Your timing there might actually be good.",
+  advTH: "The secondhand market is booming. Your timing there might actually be good."
+  },
+  {
+  score: [61, 100],
+  en: "The bag you're holding is worth less than a used Uniqlo flannel. At least the flannel keeps you warm while you check the charts at 3am.",
+  th: "The bag you're holding is worth less than a used Uniqlo flannel. At least the flannel keeps you warm while you check the charts at 3am.",
+  advEN: "Stop checking charts at 3am. Sleep is more valuable than your portfolio right now.",
+  advTH: "Stop checking charts at 3am. Sleep is more valuable than your portfolio right now."
+  },
+  ];
+  const KEYWORDS = {
+  top:     ['top','ath','high','peak','pump'],
+  bottom:  ['bottom','low','dip','sold','dump'],
+  rug:     ['rug','rugged','scam','hack','exploit'],
+  airdrop: ['airdrop','drop','claim','snapshot'],
+  };
+  let currentScore = 0;
+  let currentResult = null;
+  function setTag(text) { document.getElementById('grievance').value = text; }
+  function calcScore(text) {
+  const t = text.toLowerCase();
+  let score = 10;
+  const len = text.length;
+  score += Math.min(len / 8, 20);
+  if (KEYWORDS.top.some(k => t.includes(k)))     score += 25;
+  if (KEYWORDS.bottom.some(k => t.includes(k)))  score += 20;
+  if (KEYWORDS.rug.some(k => t.includes(k)))     score += 35;
+  if (KEYWORDS.airdrop.some(k => t.includes(k))) score += 15;
+  const exclaims = (text.match(/[!?]/g) || []).length;
+  score += Math.min(exclaims * 4, 16);
+  const caps = (text.match(/[A-Z]/g) || []).length;
+  score += Math.min(caps * 1.5, 12);
+  return Math.min(Math.round(score), 100);
+  }
+  function getVerdict(score) {
+  const candidates = VERDICTS.filter(v => score >= v.score[0] && score <= v.score[1]);
+    const pool = candidates.length ? candidates : VERDICTS.filter(v => Math.abs(v.score[0] - score) < 20);
+      const safePool = pool.length ? pool : VERDICTS;
+      return safePool[Math.floor(Math.random() * safePool.length)];
+      }
+      function getSaltColor(s) {
+      if (s <= 25) return '#00ff88';
+        if (s <= 50) return '#ffcc00';
+          if (s <= 75) return '#ff6600';
+            return '#ff2244';
+            }
+            function getSaltLabel(s) {
+            if (s <= 20) return 'Barely Salty';
+              if (s <= 40) return 'Getting Salty';
+                if (s <= 60) return 'Mid Degen Salt';
+                  if (s <= 80) return 'Mega Salty';
+                    return 'MAXIMUM SALT';
+                    }
+                    function animateScore(target) {
+                    const dur = 1600, start = Date.now();
+                    const fill = document.getElementById('gaugeFill');
+                    const num  = document.getElementById('scoreNum');
+                    const lbl  = document.getElementById('scoreLabel');
+                    const color = getSaltColor(target);
+                    num.style.visibility = 'visible';
+                    const tick = () => {
+                    const p = Math.min((Date.now() - start) / dur, 1);
+                    const e = 1 - Math.pow(1 - p, 3);
+                    const cur = Math.round(target * e);
+                    const arc = (cur / 100) * 220;
+                    fill.setAttribute('stroke-dasharray', `${arc} 220`);
+                    num.textContent = cur + '%';
+                    num.style.color = color;
+                    num.style.filter = `drop-shadow(0 0 12px ${color})`;
+                    lbl.textContent = cur > 0 ? getSaltLabel(cur) : '';
+                    lbl.style.color = color;
+                    for (let i = 0; i < 24; i++) {
+                      const b = document.getElementById('bar' + i);
+                      const h = Math.max(4, Math.sin(i * 0.7 + cur * 0.1) * 12 + (cur / 100) * 14 + 4);
+                      b.style.height = h + 'px';
+                      b.style.background = color;
+                      b.style.opacity = 0.6 + (i % 3) * 0.1;
+                      }
+                      if (p < 1) requestAnimationFrame(tick);
+                        };
+                        requestAnimationFrame(tick);
+                        }
+                        function analyze() {
+                        const g   = document.getElementById('grievance').value.trim();
+                        const err = document.getElementById('errorMsg');
+                        if (!g) {
+                        err.textContent = 'Enter your rant, degen!';
+                        err.classList.remove('hidden');
+                        return;
+                        }
+                        err.classList.add('hidden');
+                        const score   = calcScore(g);
+                        const verdict = getVerdict(score);
+                        currentScore  = score;
+                        currentResult = { score, grievance: g, ...verdict };
+                        document.getElementById('resultQuote').textContent  = `"${g}"`;
+                        document.getElementById('judgeEN').textContent      = verdict.en;
+                        document.getElementById('judgeTH').textContent      = verdict.th;
+                        document.getElementById('adviceEN').textContent     = verdict.advEN;
+                        document.getElementById('adviceTH').textContent     = verdict.advTH;
+                        document.getElementById('inputSection').classList.add('hidden');
+                        document.getElementById('resultSection').classList.remove('hidden');
+                        animateScore(score);
+                        }
+                        function shareX() {
+                        if (!currentResult) return;
+                        const label = getSaltLabel(currentScore);
+                        const text  = `My Crypto Salt Level: ${currentScore}% - "${label}"\n\nJust got roasted by The Ultimate Crypto Salt Meter :D\n\n#CryptoSalt #Degen #Web3 #BTC`;
+                        window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
+                        }
+                        function reset() {
+                        document.getElementById('grievance').value = '';
+                        document.getElementById('inputSection').classList.remove('hidden');
+                        document.getElementById('resultSection').classList.add('hidden');
+                        const fill = document.getElementById('gaugeFill');
+                        fill.setAttribute('stroke-dasharray', '0 220');
+                        const num = document.getElementById('scoreNum');
+                        num.textContent       = '0%';
+                        num.style.color       = '#1e3a2f';
+                        num.style.filter      = 'none';
+                        num.style.visibility  = 'hidden';
+                        const lbl = document.getElementById('scoreLabel');
+                        lbl.textContent  = '';
+                        lbl.style.color  = '#1e3a2f';
+                        for (let i = 0; i < 24; i++) {
+                          const b = document.getElementById('bar' + i);
+                          b.style.height     = (4 + (i % 5) * 2) + 'px';
+                          b.style.background = '#1e3a2f';
+                          b.style.opacity    = '1';
+                          }
+                          currentScore = 0;
+                          currentResult = null;
+                          }
+                        </script>
+                        </body>
+                        </html>
