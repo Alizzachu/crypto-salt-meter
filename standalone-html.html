@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+  <html lang="en">
+  <head>
+  <meta charset="UTF-8">
+  <title>The Ultimate Crypto Salt Meter</title>
+<style>
+:root { --bg: #0a0e17; --card: #111a28; --accent: #00ff88; --text: #e2e8f0; --dim: #94a3b8; }
+  body { background: var(--bg); color: var(--text); font-family: sans-serif; padding: 20px; }
+.card { background: var(--card); border: 1px solid #1e293b; border-radius: 12px; padding: 24px; }
+</style>
+  </head>
+  <body>
+  <div class="card">
+  <h1>Salty Degen</h1>
+  <textarea id="rant" rows="3" style="width:100%"></textarea>
+  <button onclick="analyze()">Analyze</button>
+  <div id="result"></div>
+  </div>
+  <script>
+  function analyze() {
+  const s = Math.floor(Math.random()*100);
+  document.getElementById('result').innerHTML = 'Salt Score: ' + s + '%';
+}
+</script>
+  </body>
+  </html>
+  
