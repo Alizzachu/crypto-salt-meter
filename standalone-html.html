@@ -298,6 +298,79 @@
       box-shadow: 0 0 22px rgba(29, 155, 240, 0.35);
     }
 
+    .btn-visit {
+      width: 100%;
+      padding: 13px;
+      border-radius: 8px;
+      border: none;
+      background: linear-gradient(90deg, #111827, #1f2937);
+      outline: 1.5px solid #00ff88;
+      color: #00ff88;
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+      letter-spacing: 1.5px;
+      font-family: 'Courier New', monospace;
+      margin-bottom: 10px;
+      box-shadow: 0 0 12px rgba(0, 255, 136, 0.1);
+      transition: all 0.2s;
+    }
+
+    .btn-visit:hover {
+      background: rgba(0, 255, 136, 0.05);
+      box-shadow: 0 0 22px rgba(0, 255, 136, 0.25);
+    }
+
+    @keyframes intense-shake {
+      0% {
+        transform: translate(1px, 1px) rotate(0deg);
+      }
+
+      10% {
+        transform: translate(-1px, -2px) rotate(-1deg);
+      }
+
+      20% {
+        transform: translate(-3px, 0px) rotate(1deg);
+      }
+
+      30% {
+        transform: translate(3px, 2px) rotate(0deg);
+      }
+
+      40% {
+        transform: translate(1px, -1px) rotate(1deg);
+      }
+
+      50% {
+        transform: translate(-1px, 2px) rotate(-1deg);
+      }
+
+      60% {
+        transform: translate(-3px, 1px) rotate(0deg);
+      }
+
+      70% {
+        transform: translate(3px, 1px) rotate(-1deg);
+      }
+
+      80% {
+        transform: translate(-1px, -1px) rotate(1deg);
+      }
+
+      90% {
+        transform: translate(1px, 2px) rotate(0deg);
+      }
+
+      100% {
+        transform: translate(1px, -2px) rotate(-1deg);
+      }
+    }
+
+    .shake-intense {
+      animation: intense-shake 0.3s cubic-bezier(.36, .07, .19, .97) infinite;
+    }
+
     .btn-reset {
       width: 100%;
       padding: 12px;
@@ -388,6 +461,9 @@
           <button class="tag" onclick="setTag('Sold the Bottom / ขายหมู')">🐷 Sold the Bottom / ขายหมู</button>
           <button class="tag" onclick="setTag('Rugged / โดนรูด')">🪤 Rugged / โดนรูด</button>
           <button class="tag" onclick="setTag('Missed Airdrop / อดแอร์ดรอป')">💸 Missed Airdrop / อดแอร์ดรอป</button>
+          <button class="tag" onclick="setTag('Liquidated / โดนล้างพอร์ต 💸')">💸 Liquidated / โดนล้างพอร์ต</button>
+          <button class="tag" onclick="setTag('Gas > Profit / ค่าแก๊สแพงกว่ากำไร ⛽')">⛽ Gas > Profit /
+            ค่าแก๊สแพง</button>
         </div>
         <div class="error hidden" id="errorMsg"></div>
         <button class="btn-analyze" onclick="analyze()">🧂 MEASURE MY SALT / วัดความเค็มฉันเลย</button>
@@ -415,6 +491,7 @@
           </div>
         </div>
         <button class="btn-share" onclick="shareX()">𝕏 &nbsp;SHARE MY SALT TO X / แชร์ความเค็มลง X</button>
+        <button class="btn-visit" onclick="window.open('https://alizza.os', '_blank')">🌐 VISIT ALIZZA.OS</button>
         <button class="btn-reset" onclick="reset()">🔄 NEW RANT / บ่นใหม่อีกรอบ</button>
       </div>
     </div>
@@ -446,116 +523,34 @@
     // Tier 3: 61–80 (mega salty)
     // Tier 4: 81–100 (maximum salt)
     const VERDICTS = [
-      // Tier 0 — barely salty
       {
         score: [0, 20],
-        en: "Honestly? Your grievance is pretty mild. Even I've seen worse. Maybe crypto just isn't your calling — and that's okay.",
-        th: "จริงๆ นะ? เรื่องที่นายบ่นมาเบามากเลย แม้แต่ฉันยังเคยเห็นแย่กว่านี้ บางทีคริปโตอาจไม่ใช่ทางของนาย และนั่นก็โอเคนะ",
-        advEN: "Take profits next time. Revolutionary concept, I know.",
-        advTH: "ครั้งหน้า take profit บ้างนะ ไอเดียปฏิวัติวงการ ฉันรู้"
-      },
-      // Tier 1 — getting salty
-      {
-        score: [21, 40],
-        en: "I've done the math. If you'd spent your investment on vintage tees and resold them, you'd be up 40% right now. Just saying.",
-        th: "ฉันคำนวณแล้ว ถ้านายเอาเงินลงทุนไปซื้อเสื้อวินเทจมาขายต่อ ตอนนี้บวกอยู่ 40% แล้ว แค่บอกให้รู้",
-        advEN: "There is no shame in selling second-hand clothes. There is shame in holding a dead coin.",
-        advTH: "ไม่มีอะไรน่าอาย ในการขายเสื้อผ้ามือสอง แต่น่าอายกว่าที่จะถือเหรียญที่ตายแล้ว"
+        en: "Too calm! Are you a human or an HFT bot? Such diamond hands belong in an exchange boardroom.",
+        th: "นิ่งเกินไปแล้ว! นี่คนหรือบอท HFT? ใจเพชรขนาดนี้ไปเป็นเจ้าของ Exchange เองเถอะ",
+        advEN: "Keep doing what you're doing. Pure Diamond.",
+        advTH: "ทำดีแล้ว ทำต่อไป ใจเพชรที่แท้ทรู"
       },
       {
-        score: [21, 40],
-        en: "You didn't miss the airdrop. The airdrop missed someone who would've sold immediately for 2% profit anyway.",
-        th: "นายไม่ได้พลาด airdrop Airdrop แค่หลีกเลี่ยงคนที่จะเทขายทันทีเพื่อกำไร 2% อยู่แล้ว",
-        advEN: "Set reminders for snapshot dates. It's not that hard.",
-        advTH: "ตั้ง reminder สำหรับ snapshot date สิ ไม่ได้ยากเลย"
-      },
-      // Tier 2 — mid degen
-      {
-        score: [41, 60],
-        en: "The market didn't dump on you. The market used you. There's a difference, and you're too salty to see it.",
-        th: "ตลาดไม่ได้ dump ใส่นาย ตลาดใช้นาย มันต่างกัน แต่นายเค็มเกินกว่าจะมองออก",
-        advEN: "Study the chart before you ape in next time.",
-        advTH: "ศึกษากราฟก่อนจะ ape in ครั้งหน้าหน่อยนะ"
+        score: [21, 50],
+        en: "A pinch of salt. Feels like a failed gas fee. Go hug your Shih Tzu or play with your cat to calm down.",
+        th: "เค็มนิด ๆ เหมือนเพิ่งเสียค่าแก๊สฟรีไปรอบนึง ไม่เป็นไรนะ ไปกอดหมา Shih Tzu หรือเล่นกับแมวให้ใจเย็นลงก่อน",
+        advEN: "Take a deep breath and touch some grass.",
+        advTH: "หายใจลึกๆ แล้วออกไปแตะหญ้าบ้างนะ"
       },
       {
-        score: [41, 60],
-        en: "Bro, you sold the bottom with surgical precision. You have a rare gift — the gift of being wrong at exactly the right time for everyone else.",
-        th: "พี่ นายขายจุดต่ำสุดได้แม่นจนน่าทึ่ง นายมีพรสวรรค์หายาก — พรสวรรค์ในการผิดพลาดในจังหวะที่ถูกต้องสำหรับคนอื่น",
-        advEN: "When you feel the urge to sell everything, that's the signal to hold.",
-        advTH: "ตอนที่นายอยากขายทุกอย่างที่สุด นั่นแหละคือสัญญาณให้ถือไว้"
-      },
-      {
-        score: [41, 60],
-        en: "Every great entrepreneur pivots. Crypto clearly isn't your lane. Have you considered the used clothing business? Lower volatility, better margins for you specifically.",
-        th: "ผู้ประกอบการที่ยิ่งใหญ่ทุกคนรู้จัก pivot คริปโตไม่ใช่ทางของนายชัดๆ ลองคิดดูไหม ธุรกิจเสื้อผ้ามือสอง ความผันผวนต่ำกว่า กำไรดีกว่าสำหรับนายโดยเฉพาะ",
-        advEN: "Vintage tees don't rug pull. Just saying.",
-        advTH: "เสื้อวินเทจไม่มี rug pull นะ แค่บอกให้รู้"
-      },
-      // Tier 3 — mega salty
-      {
-        score: [61, 80],
-        en: "You bought the top so perfectly it should be in a textbook. Chart analysts study bagholders like you to find resistance levels.",
-        th: "นายซื้อจุดสูงสุดได้แม่นยำจนควรเอาไปลงตำรา นักวิเคราะห์กราฟใช้พวกที่ติดดอยอย่างนายหา resistance level",
-        advEN: "'Buy high sell low' is a strategy, just not a good one.",
-        advTH: "'ซื้อแพงขายถูก' ก็เป็น strategy นะ แค่ไม่ใช่ strategy ที่ดีเท่านั้นเอง"
-      },
-      {
-        score: [61, 80],
-        en: "I've seen stronger hands on a wet noodle. Your paper hands are literally funding my next holiday in Mykonos.",
-        th: "ฉันเคยเห็นมือที่แข็งแกร่งกว่าเส้นหมี่เปียก มือกระดาษของนายกำลังเป็นทุนทริปวันหยุดต่อไปของฉันที่ Mykonos",
-        advEN: "Diamond hands aren't born, they're forged. Start practicing.",
-        advTH: "มือเพชรไม่ได้เกิดมา แต่ถูกสร้างขึ้น เริ่มฝึกได้แล้ว"
-      },
-      {
-        score: [61, 80],
-        en: "The chart pattern you created by panic selling is called a Degen's Gift. We frame those. It's hanging in my yacht's bathroom.",
-        th: "รูปแบบกราฟที่นาย panic sell สร้างขึ้นเรียกว่า 'ของขวัญจาก Degen' เราเอาไปติดกรอบ ตอนนี้แขวนอยู่ในห้องน้ำเรือยอชต์ฉัน",
-        advEN: "Panic selling is never the answer. Take a walk instead.",
-        advTH: "การ panic sell ไม่ใช่คำตอบ ลองออกไปเดินเล่นแทนดีกว่า"
-      },
-      // Tier 4 — maximum salt
-      {
-        score: [81, 100],
-        en: "Congratulations — you were the exit liquidity that kept this ecosystem running. You didn't lose money, you donated it to smarter people.",
-        th: "ยินดีด้วย คุณคือ Exit Liquidity ที่ทำให้ ecosystem นี้หมุนได้ คุณไม่ได้เสียเงิน คุณแค่บริจาคให้คนฉลาดกว่า",
-        advEN: "Next time, try being the one who exits first instead of providing the exit.",
-        advTH: "ครั้งหน้าลองเป็นคนที่ exit ก่อนแทนที่จะเป็น exit ให้คนอื่นดูบ้าง"
+        score: [51, 80],
+        en: "You're hurting. Is the copium wearing off? Take a break and go find some Alpha in THE MUTUAL Discord instead.",
+        th: "อาการหนักนะเราน่ะ กาวที่ดมเข้าไปเริ่มหมดฤทธิ์แล้วเหรอ? สภาพนี้พักเทรดแล้วไปหา Alpha ในกลุ่ม THE MUTUAL ก่อนไหม?",
+        advEN: "Join THE MUTUAL and learn before you burn more capital.",
+        advTH: "เข้ากลุ่ม THE MUTUAL ไปหาความรู้ก่อนจะเสียเงินไปมากกว่านี้"
       },
       {
         score: [81, 100],
-        en: "Every whale needs exit liquidity. Thanks for your service, soldier. Your bags are someone's life-changing gains right now.",
-        th: "ทุก Whale ต้องการ Exit Liquidity ขอบคุณสำหรับการบริการ ทหาร ถุงที่หนักอึ้งของนายตอนนี้คือกำไรเปลี่ยนชีวิตของคนอื่น",
-        advEN: "Consider index funds. Boring but effective.",
-        advTH: "ลองพิจารณา index fund ดูนะ น่าเบื่อแต่ได้ผล"
-      },
-      {
-        score: [81, 100],
-        en: "Getting rugged builds character. Losing everything twice builds more character. You must be the most interesting person at dinner.",
-        th: "การโดนรูดสร้างบุคลิก การเสียทุกอย่างสองครั้งสร้างบุคลิกมากกว่า นายต้องเป็นคนที่น่าสนใจที่สุดในโต๊ะอาหาร",
-        advEN: "Audit the contract next time. Or at least Google the team.",
-        advTH: "ครั้งหน้า audit contract ก่อนนะ หรืออย่างน้อย Google ทีมก่อนก็ยังดี"
-      },
-      {
-        score: [81, 100],
-        en: "My Lambo's monthly parking fee is more than what you invested. I'm not laughing — okay I am, but respectfully.",
-        th: "ค่าจอดรถ Lambo รายเดือนของฉันแพงกว่าเงินที่นายลงทุน ฉันไม่ได้หัวเราะนะ — โอเค ฉันหัวเราะ แต่ด้วยความเคารพ",
-        advEN: "Start smaller. Much, much smaller.",
-        advTH: "เริ่มต้นให้เล็กลง เล็กลงมากๆ"
-      },
-      {
-        score: [81, 100],
-        en: "Your exit liquidity funded three whales' Bali trips. In return, the market is generously offering you a new career: pre-loved fashion entrepreneur.",
-        th: "เงิน Exit Liquidity ของนายเป็นทุนทริป Bali ให้ Whale สามคน แลกมาด้วยตลาดที่ใจดีเสนอเส้นทางอาชีพใหม่ให้นาย: ผู้ประกอบการแฟชั่นมือสอง",
-        advEN: "The secondhand market is booming. Your timing there might actually be good.",
-        advTH: "ตลาดมือสองกำลังบูม บางทีนายอาจจะ timing ดีกว่าในตลาดนั้น"
-      },
-      {
-        score: [61, 100],
-        en: "The bag you're holding is worth less than a used Uniqlo flannel. At least the flannel keeps you warm while you check the charts at 3am.",
-        th: "ถุงที่นายแบกอยู่มูลค่าต่ำกว่าเสื้อลายสก็อต Uniqlo มือสองแล้ว อย่างน้อยเสื้อมันยังให้ความอบอุ่นตอนนายเช็คกราฟตี 3",
-        advEN: "Stop checking charts at 3am. Sleep is more valuable than your portfolio right now.",
-        advTH: "หยุดเช็คกราฟตี 3 เถอะ การนอนหลับมีคุณค่ากว่าพอร์ตของนายตอนนี้"
-      },
+        en: "Holy... You're a walking salt factory! Please quit trading. You're just exit liquidity. Go sell your brand-name denim; it's a better bet!",
+        th: "โอ้โห... นี่มันโรงงานเกลือเคลื่อนที่! เลิกเทรดเถอะขอร้อง สภาพนี้คือ Exit Liquidity ชั้นดี ชวนคนอื่นไปช้อปปิ้งเสื้อผ้ามือสองที่ร้านคุณยังรุ่งกว่าเลย!",
+        advEN: "Just stop. Seriously. The market thanks you for your liquidity.",
+        advTH: "หยุดเถอะ พูดจริง ตลาดขอบคุณสำหรับสภาพคล่องนะ"
+      }
     ];
 
     const KEYWORDS = {
@@ -563,6 +558,8 @@
       bottom: ['bottom', 'low', 'dip', 'sold', 'dump', 'ขายหมู', 'หมู', 'ต่ำสุด', 'ขาย'],
       rug: ['rug', 'rugged', 'scam', 'hack', 'exploit', 'โดนรูด', 'รูด', 'โกง', 'หาย'],
       airdrop: ['airdrop', 'drop', 'claim', 'snapshot', 'อดแอร์ดรอป', 'แอร์ดรอป', 'พลาด'],
+      liq: ['liquidated', 'liq', 'ล้างพอร์ต', 'แตก'],
+      gas: ['gas', 'fee', 'ค่าแก๊ส', 'แก๊ส'],
     };
 
     let currentScore = 0;
@@ -580,6 +577,8 @@
       if (KEYWORDS.bottom.some(k => t.includes(k))) score += 20;
       if (KEYWORDS.rug.some(k => t.includes(k))) score += 35;
       if (KEYWORDS.airdrop.some(k => t.includes(k))) score += 15;
+      if (KEYWORDS.liq.some(k => t.includes(k))) score += 40;
+      if (KEYWORDS.gas.some(k => t.includes(k))) score += 15;
       const exclaims = (text.match(/[!?]/g) || []).length;
       score += Math.min(exclaims * 4, 16);
       const caps = (text.match(/[A-Z]/g) || []).length;
@@ -642,6 +641,14 @@
           b.style.background = color;
           b.style.opacity = 0.6 + (i % 3) * 0.1;
         }
+
+        const wrap = document.querySelector('.gauge-svg-wrap');
+        if (cur > 80) {
+          wrap.classList.add('shake-intense');
+        } else {
+          wrap.classList.remove('shake-intense');
+        }
+
         if (p < 1) requestAnimationFrame(tick);
       };
       requestAnimationFrame(tick);
@@ -697,6 +704,8 @@
       const lbl = document.getElementById('scoreLabel');
       lbl.textContent = '';
       lbl.style.color = '#1e3a2f';       // BUG FIX: reset label color too
+
+      document.querySelector('.gauge-svg-wrap').classList.remove('shake-intense');
 
       for (let i = 0; i < 24; i++) {
         const b = document.getElementById('bar' + i);
